@@ -81,6 +81,7 @@ void setup()
   lcd.print("System startup");
   Serial.println("Alarm button status:"); //used for troubleshooting
   passwordTries=0;
+  lcd.clear();
   }
 
 void loop()
@@ -101,7 +102,7 @@ void loop()
     digitalWrite(siren, LOW);
     alarmState = 0;
     Serial.println("System disabled!"); // Used for troubleshooting
-    lcd.clear();
+    lcd.home();
     lcd.print("System disabled");
     passwordTries=0;
 
@@ -110,6 +111,7 @@ void loop()
   else
     {
     // System is enabled
+    lcd.home();
     
     if(alarmState == STATE_READY) 
      {
@@ -134,7 +136,7 @@ void loop()
       Serial.println("System is arming! Counting down exit delay..."); // Used for troubleshooting
       lcd.clear();
       lcd.print("Exit delay...");
-      if(now >= tempTime + exitDelay * 1000L) {alarmState = STATE_ARMED;}
+      if(now >= tempTime + exitDelay * 1000L) {lcd.clear(); alarmState = STATE_ARMED;}
       }
       
     if(alarmState == STATE_ARMED)              // system is armed
@@ -145,7 +147,7 @@ void loop()
       digitalWrite(siren, LOW);
    
       Serial.println("System armed!"); // Used for Troubleshooting
-      lcd.clear();
+      //lcd.clear();
       lcd.print("Armed!");
 
       pirSensorData = digitalRead(pirSensor);  
@@ -185,7 +187,7 @@ void loop()
       lcd.clear();
       lcd.print("Entry delay...");
       keypad.getKey();
-      if(now >= tempTime + entryDelay * 1000L) {alarmState = STATE_ALARM; tempTime = now;}
+      if(now >= tempTime + entryDelay * 1000L) {lcd.clear(); alarmState = STATE_ALARM; tempTime = now;}
       
       }
 
@@ -194,7 +196,7 @@ void loop()
       digitalWrite(siren, HIGH);
       digitalWrite(redLed, HIGH);
       Serial.println("Siren is active !"); //Used for troubleshooting
-      lcd.clear();
+      //lcd.clear();
       lcd.print("ALARM!! ALARM!!");
       
 
@@ -220,8 +222,8 @@ void keypadEvent(KeypadEvent eKey){
     case PRESSED:
   Serial.print("Pressed: ");
   Serial.println(eKey);
-  lcd.clear();
-  lcd.print(eKey );
+  //lcd.clear();
+  //lcd.print(eKey );
   switch (eKey){
     case KEY_CHECK_PASSWORD: checkPassword(); break;
     case KEY_RESET_ENTRY: password1.reset(); break;
@@ -236,6 +238,8 @@ void keypadEvent(KeypadEvent eKey){
     Serial.println("Successful password entry"); //Used for troubleshooting
     lcd.clear();
     lcd.print("Password correct!");
+    delay(750);
+    lcd.clear();
     systemState++;
     passwordTries=0;
   }else{
@@ -253,6 +257,7 @@ void keypadEvent(KeypadEvent eKey){
       delay(100);
       ledBlink++;
     }
+    lcd.clear();
   }
   password1.reset();
   password2.reset();
