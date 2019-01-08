@@ -151,9 +151,9 @@ void loop()
       Serial.println("System is arming! Counting down exit delay..."); // Used for troubleshooting
       lcd.clear();
 #if KIDS_MODE
-      lcd.print("RUN AWAY!!!");
+      lcd.print("   RUN AWAY!!!");
       lcd.setCursor(0,1);
-      lcd.print("RUN AWAY!!!");
+      lcd.print("Go far, far AWAY");
 #else
       lcd.print("Exit delay...");
 #endif
