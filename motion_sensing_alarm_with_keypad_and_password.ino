@@ -207,6 +207,8 @@ void loop()
         lcd.print("NO WAY, JOSE!!!!");
         lcd.setCursor(0,1);
         lcd.print("GET LOST!");
+        delay(1000);
+        lcd.clear();
 #else
         lcd.print("Hacker detected!");
 #endif
