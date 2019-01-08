@@ -11,6 +11,8 @@ char passwd2[] = { '9', '2', '3', '9', '2', 0x0 };     // "Master" password
 Password password2 = Password( passwd2 );  // password
 
 
+#define KIDS_MODE 1     // Set to 1 for "kids" mode (e.g. "Silly"/simple instructions), 0 for "regular"/"real" instructions
+
 
 int passwordTries=0;                      // How many "bad passwords" have been tried in a row
 const byte rows = 4;                     // four rows       
@@ -44,9 +46,16 @@ int ledBlink;
 int pirSensorData;
 unsigned long now, tempTime;
 
-int exitDelay = 6L;    // Delay (in seconds) after arming the system before enabling the PIR trigger (so-called "Exit delay")
+
+#if KIDS_MODE
+int exitDelay = 10L;    // Delay (in seconds) after arming the system before enabling the PIR trigger (so-called "Exit delay")
 int entryDelay = 2L; // Delay (in seconds) after motion-detected to alarm activated (so-called "Entry delay")
+int sirenAutoResetDuration = 20L;   // Max. time (in seconds) siren will stay on before alarm auto-resets if no one enters the password 
+#else
+int exitDelay = 45L;    // Delay (in seconds) after arming the system before enabling the PIR trigger (so-called "Exit delay")
+int entryDelay = 20L; // Delay (in seconds) after motion-detected to alarm activated (so-called "Entry delay")
 int sirenAutoResetDuration = 40L;   // Max. time (in seconds) siren will stay on before alarm auto-resets if no one enters the password 
+#endif
 
 
 int systemState = 0;      // system is 0 for off and 1 for on. Gets toggled whenever a valid password is entered
@@ -79,7 +88,6 @@ void setup()
   Serial.println("System startup"); //Used for troubleshooting
   lcd.clear();
   lcd.print("System startup");
-  Serial.println("Alarm button status:"); //used for troubleshooting
   passwordTries=0;
   lcd.clear();
   }
@@ -103,7 +111,14 @@ void loop()
     alarmState = 0;
     Serial.println("System disabled!"); // Used for troubleshooting
     lcd.home();
+#if KIDS_MODE
+    lcd.print("Shields down");
+    lcd.setCursor(0,1);
+    lcd.print("Safe To Enter!");
+#else
     lcd.print("System disabled");
+#endif
+
     passwordTries=0;
 
     }
@@ -135,7 +150,13 @@ void loop()
       keypad.getKey();
       Serial.println("System is arming! Counting down exit delay..."); // Used for troubleshooting
       lcd.clear();
+#if KIDS_MODE
+      lcd.print("RUN AWAY!!!");
+      lcd.setCursor(0,1);
+      lcd.print("RUN AWAY!!!");
+#else
       lcd.print("Exit delay...");
+#endif
       if(now >= tempTime + exitDelay * 1000L) {lcd.clear(); alarmState = STATE_ARMED;}
       }
       
@@ -148,8 +169,13 @@ void loop()
    
       Serial.println("System armed!"); // Used for Troubleshooting
       //lcd.clear();
+#if KIDS_MODE
+      lcd.print("Ready to catch");
+      lcd.setCursor(0,1);
+      lcd.print("bad guys!!");
+#else
       lcd.print("Armed!");
-
+#endif
       pirSensorData = digitalRead(pirSensor);  
       Serial.print("pirSensordData = "); //Used for troubleshooting
       Serial.println(pirSensorData); //Used for troubleshooting
@@ -162,7 +188,13 @@ void loop()
        digitalWrite(yellowLed, LOW);
        Serial.println("Motion detected!"); // Used for troubleshooting
        lcd.clear();
+#if KIDS_MODE
+       lcd.print("BAD GUY");
+       lcd.setCursor(0,1);
+       lcd.print("DETECTED!!!");
+#else
        lcd.print("Motion detected!");
+#endif
        }
 
        // If password has been tried too many times, ALARM INSTANTLY!
@@ -171,7 +203,13 @@ void loop()
         alarmState = STATE_ALARM; tempTime = now;
         Serial.println("Too many bad-password attempts!"); // Used for troubleshooting
         lcd.clear();
+#if KIDS_MODE
+        lcd.print("NO WAY, JOSE!!!!");
+        lcd.setCursor(0,1);
+        lcd.print("GET LOST!");
+#else
         lcd.print("Hacker detected!");
+#endif
        }
 
       }
@@ -185,7 +223,13 @@ void loop()
       digitalWrite(greenLed, LOW);
       Serial.println("Motion detected! Counting down entry delay..."); //Used for troubleshooting
       lcd.clear();
+#if KIDS_MODE
+      lcd.print("Enter secret");
+      lcd.setCursor(0,1);
+      lcd.print("code now:");
+#else
       lcd.print("Entry delay...");
+#endif
       keypad.getKey();
       if(now >= tempTime + entryDelay * 1000L) {lcd.clear(); alarmState = STATE_ALARM; tempTime = now;}
       
@@ -197,8 +241,13 @@ void loop()
       digitalWrite(redLed, HIGH);
       Serial.println("Siren is active !"); //Used for troubleshooting
       //lcd.clear();
+#if KIDS_MODE
+      lcd.print("FIRE LASER");
+      lcd.setCursor(0,1);
+      lcd.print("BLASTERS!!");
+#else
       lcd.print("ALARM!! ALARM!!");
-      
+#endif      
 
 
 // For siren
@@ -237,7 +286,13 @@ void keypadEvent(KeypadEvent eKey){
   if (password1.evaluate() || password2.evaluate()){
     Serial.println("Successful password entry"); //Used for troubleshooting
     lcd.clear();
+#if KIDS_MODE
+    lcd.print("Secret code is");
+    lcd.setCursor(0,1);
+    lcd.print("   CORRECT!");
+#else
     lcd.print("Password correct!");
+#endif
     delay(750);
     lcd.clear();
     systemState++;
@@ -245,7 +300,13 @@ void keypadEvent(KeypadEvent eKey){
   }else{
     Serial.println("Incorrect password!"); //Used for troubleshooting
     lcd.clear();
+#if KIDS_MODE
+      lcd.print("Sorry Charlie!");
+      lcd.setCursor(0,1);
+      lcd.print("Try again");
+#else
     lcd.print("Wrong password!");
+#endif
     passwordTries++;
 
     //add code to run if it did not work
